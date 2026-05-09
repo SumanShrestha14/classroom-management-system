@@ -22,11 +22,11 @@ const SubjectList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("all");
 
-  const departmentFilters = selectedDepartment !== "all" ? [] : [{
+  const departmentFilters = selectedDepartment !== "all" ? [{
     field : 'department',
     operator : 'eq' as const,
     value : selectedDepartment
-  }]
+  }] : []
   const searchfilters = searchQuery ? [{
     field : 'name',
     operator : 'contains' as const,
