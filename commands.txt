@@ -1,2 +1,0 @@
-npm create refine-app@latest
-tweakcn
