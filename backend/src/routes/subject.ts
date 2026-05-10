@@ -16,10 +16,10 @@ router.get("/", async (req, res) => {
 
     const offset = (currentPage - 1) * limitPerPage;
 
-    const filterCondtion = [];
+    const filterCondition = [];
 
     if (search) {
-      filterCondtion.push(
+      filterCondition.push(
         or(
           ilike(subjects.name, `%${search}%`),
           ilike(subjects.code, `%${search}%`),
@@ -28,11 +28,11 @@ router.get("/", async (req, res) => {
     }
 
     if (department) {
-      filterCondtion.push(ilike(departments.name, `%${department}%`));
+      filterCondition.push(ilike(departments.name, `%${department}%`));
     }
 
     const whereClause =
-      filterCondtion.length > 0 ? and(...filterCondtion) : undefined;
+      filterCondition.length > 0 ? and(...filterCondition) : undefined;
 
     const countResult = await db
       .select({ count: sql<number>`count(*)` })
