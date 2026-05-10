@@ -3,6 +3,10 @@ import SubjectRouter from "./routes/subject";
 import cors from "cors";
 
 const app = express();
+
+if(!process.env.FRONTEND_URL){
+    throw new Error("FRONTEND_URL is not defined in environment variables");
+}
 app.use(express.json());
 app.use(
   cors({
@@ -15,6 +19,6 @@ app.use("/api/subjects", SubjectRouter);
 app.get("/", (req, res) => {
   res.send("Hello, World!");
 });
-app.listen(process.env.PORT || 3000, () => {
-  console.log("Server is running on port 3000");
+app.listen(process.env.PORT || 5500, () => {
+  console.log(`Server is running on port ${process.env.PORT || 5500}`);
 });
