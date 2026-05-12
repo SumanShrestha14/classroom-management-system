@@ -10,13 +10,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DEPARTMENTS_OPTIONS } from "@/constants/index.ts";
 import { useTable } from "@refinedev/react-table";
 import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Subject } from "@/types/index.ts";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
+import { DEPARTMENT_OPTIONS } from '@/constants/index.ts';
 
 const SubjectList = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -51,7 +51,7 @@ const SubjectList = () => {
       },
       {
         id:'department',
-        accessorKey:'department',
+        accessorKey:'department.name',
         size:150,
         header:()=> <p className="column-title">Department</p>,
         cell: ({getValue}) => <Badge variant={"secondary"}>{getValue<string>()}</Badge>
@@ -107,7 +107,7 @@ const SubjectList = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Departments</SelectItem>
-                {DEPARTMENTS_OPTIONS.map((department) => (
+                {DEPARTMENT_OPTIONS.map((department) => (
                   <SelectItem key={department.value} value={department.value}>
                     {department.label}
                   </SelectItem>

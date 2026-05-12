@@ -17,8 +17,7 @@ import { Layout } from "./components/refine-ui/layout/layout";
 import Dashboard from "./pages/dashboard";
 import SubjectList from "./pages/subjects/subjectsList";
 import SubjectsCreate from "./pages/subjects/subjectsCreate";
-import { dataProvider } from "./provider/data";
-
+import dataProvider from "./provider/data"
 function App() {
   return (
     <BrowserRouter>
