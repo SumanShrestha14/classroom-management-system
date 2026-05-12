@@ -13,7 +13,7 @@ const options:CreateDataProviderOptions ={
                 const field = 'field' in filter ? filter.field : '';
                 const value = String(filter.value);
                 if(resource === 'subjects'){
-                    if(field === 'departments'){
+                    if(field === 'department'){
                         params.department = value;
                     }
                     if(field === 'name' || field ==='code'){
