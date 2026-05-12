@@ -57,18 +57,21 @@ router.get("/", async (req, res) => {
       .orderBy(desc(subjects.createdAt));
 
     res.status(200).json({
-        success:true,
-        data : subjectList,
-        pagination:{
-            page:currentPage,
-            limit:limitPerPage,
-            total:totalCount,
-            totalPages:Math.ceil(totalCount/limitPerPage)
-        }
+      // success:true,
+      data: subjectList,
+      pagination: {
+        page: currentPage,
+        limit: limitPerPage,
+        total: totalCount,
+        totalPages: Math.ceil(totalCount / limitPerPage),
+      },
     });
   } catch (e) {
     console.error(e);
-    res.status(500).json({ success: false, message: "Server error" });
+    res.status(500).json({
+      // success: false,
+      message: "Server error",
+    });
   }
 });
 
