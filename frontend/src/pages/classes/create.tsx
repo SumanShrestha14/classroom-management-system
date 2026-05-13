@@ -11,8 +11,7 @@ import {
 } from "@/components/ui/card.tsx";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "@refinedev/react-hook-form";
-
+import {useForm } from "@refinedev/react-hook-form"
 import * as z from "zod";
 
 import { classSchema } from "@/lib/schema.ts";
@@ -27,7 +26,6 @@ import {
 } from "@/components/ui/form";
 
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label.tsx";
 
 import {
   Select,
@@ -39,8 +37,9 @@ import {
 
 import { Textarea } from "@/components/ui/textarea.tsx";
 
-import { Loader2, Upload } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import UploadWidget from "@/components/upload-widget";
+import { UploadWidgetValue } from "@/types";
 
 const Create = () => {
   const back = useBack();
@@ -50,7 +49,7 @@ const Create = () => {
       resource: "classes",
       action: "create",
     },
-    resolver: zodResolver(classSchema),
+    resolver: zodResolver(classSchema) as never, // may be buggy bcz no generics support in useForm, but it works fine
   });
 
   const {
@@ -94,7 +93,10 @@ const Create = () => {
   ];
 
   const bannerPublicId = form.watch("bannerCldPubId");
-  const setBannerImage = (file, field) => {
+  const setBannerImage = (
+    file: UploadWidgetValue | null,
+    field: { onChange: (value: string) => void },
+  ) => {
     if (file) {
       field.onChange(file.url);
       form.setValue("bannerCldPubId", file.publicId, {
@@ -137,7 +139,7 @@ const Create = () => {
 
           <CardContent className="mt-7">
             <Form {...form}>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              <form onSubmit={handleSubmit(onSubmit as never)} className="space-y-5">
                 {/* Banner Image */}
 
                 <FormField
@@ -161,7 +163,7 @@ const Create = () => {
                                   }
                                 : null
                             }
-                            onChange={(file: any) =>
+                            onChange={(file: UploadWidgetValue | null) =>
                               setBannerImage(file, field)
                             }
                           />

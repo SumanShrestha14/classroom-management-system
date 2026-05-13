@@ -1,9 +1,13 @@
 import { CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET } from "@/constants";
-import { UploadWidgetValue } from "@/types";
+import { UploadWidgetProps, UploadWidgetValue } from "@/types";
 import { UploadCloud } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
-const UploadWidget = ({ value = null, onChange, disabled = false }) => {
+const UploadWidget: React.FC<UploadWidgetProps> = ({
+  value = null,
+  onChange,
+  disabled = false,
+}) => {
   const widgetRef = useRef<CloudinaryWidget | null>(null);
   const onChangeRef = useRef(onChange);
   const [preview, setPreview] = useState<UploadWidgetValue | null>(value);
@@ -17,7 +21,7 @@ const UploadWidget = ({ value = null, onChange, disabled = false }) => {
   }, [onChange]);
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const initilizeWidget = () => {
+    const initializeWidget = () => {
       if (!window.cloudinary || widgetRef.current) return false;
       widgetRef.current = window.cloudinary.createUploadWidget(
         {
@@ -47,12 +51,19 @@ const UploadWidget = ({ value = null, onChange, disabled = false }) => {
       );
       return true;
     };
-    if (initilizeWidget()) return;
+    if (initializeWidget()) return;
+    let retryCount = 0;
+    const MAX_RETRIES = 20; // 10 seconds total
     const intervalId = window.setInterval(() => {
-      if (initilizeWidget()) {
+      retryCount++;
+      if (retryCount >= MAX_RETRIES) {
         window.clearInterval(intervalId);
+        console.error(
+          "Failed to initialize Cloudinary widget: script did not load",
+        );
+        return;
       }
-    }, 500);
+    },500);
     return () => window.clearInterval(intervalId);
   }, []);
   const openWidget = () => {
