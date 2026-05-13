@@ -11,8 +11,7 @@ import {
 } from "@/components/ui/card.tsx";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "@refinedev/react-hook-form";
-
+import {useForm } from "@refinedev/react-hook-form"
 import * as z from "zod";
 
 import { classSchema } from "@/lib/schema.ts";
@@ -27,7 +26,6 @@ import {
 } from "@/components/ui/form";
 
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label.tsx";
 
 import {
   Select,
@@ -40,6 +38,8 @@ import {
 import { Textarea } from "@/components/ui/textarea.tsx";
 
 import { Loader2 } from "lucide-react";
+import UploadWidget from "@/components/upload-widget";
+import { UploadWidgetValue } from "@/types";
 
 const Create = () => {
   const back = useBack();
@@ -49,24 +49,13 @@ const Create = () => {
       resource: "classes",
       action: "create",
     },
-
-    resolver: zodResolver(classSchema),
-
-    defaultValues: {
-      name: "",
-      subjectId: undefined,
-      teacherId: undefined,
-      capacity: undefined,
-      status: "active",
-      description: "",
-      banner: undefined,
-    },
+    resolver: zodResolver(classSchema) as never, // may be buggy bcz no generics support in useForm, but it works fine
   });
 
   const {
     handleSubmit,
     control,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = form;
 
   const onSubmit = async (values: z.infer<typeof classSchema>) => {
@@ -103,6 +92,25 @@ const Create = () => {
     },
   ];
 
+  const bannerPublicId = form.watch("bannerCldPubId");
+  const setBannerImage = (
+    file: UploadWidgetValue | null,
+    field: { onChange: (value: string) => void },
+  ) => {
+    if (file) {
+      field.onChange(file.url);
+      form.setValue("bannerCldPubId", file.publicId, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    } else {
+      field.onChange("");
+      form.setValue("bannerCldPubId", "", {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    }
+  };
   return (
     <CreateView className="class-view">
       <Breadcrumb />
@@ -112,11 +120,7 @@ const Create = () => {
       <div className="intro-row">
         <p>Provide the required information below to add a class.</p>
 
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => back()}
-        >
+        <Button type="button" variant="outline" onClick={() => back()}>
           Go Back
         </Button>
       </div>
@@ -135,38 +139,47 @@ const Create = () => {
 
           <CardContent className="mt-7">
             <Form {...form}>
-              <form
-                onSubmit={handleSubmit(onSubmit)}
-                className="space-y-5"
-              >
+              <form onSubmit={handleSubmit(onSubmit as never)} className="space-y-5">
                 {/* Banner Image */}
+
                 <FormField
                   control={control}
-                  name="banner"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Banner Image{" "}
-                        <span className="text-orange-600">*</span>
-                      </FormLabel>
+                  name="bannerUrl"
+                  render={({ field }) => {
+                    return (
+                      <FormItem>
+                        <FormLabel>
+                          Banner Image{" "}
+                          <span className="text-orange-600">*</span>
+                        </FormLabel>
 
-                      <FormControl>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) =>
-                            field.onChange(
-                              e.target.files?.[0] || undefined
-                            )
-                          }
-                        />
-                      </FormControl>
+                        <FormControl>
+                          <UploadWidget
+                            value={
+                              field.value
+                                ? {
+                                    url: field.value,
+                                    publicId: bannerPublicId ?? "",
+                                  }
+                                : null
+                            }
+                            onChange={(file: UploadWidgetValue | null) =>
+                              setBannerImage(file, field)
+                            }
+                          />
+                        </FormControl>
 
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                        <FormMessage />
+
+                        {errors.bannerCldPubId && !errors.bannerUrl && (
+                          <p className="text-sm text-red-600">
+                            {errors.bannerCldPubId.message?.toString()}
+                          </p>
+                        )}
+                      </FormItem>
+                    );
+                  }}
                 />
-
                 {/* Class Name */}
                 <FormField
                   control={control}
@@ -174,8 +187,7 @@ const Create = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Class Name{" "}
-                        <span className="text-orange-600">*</span>
+                        Class Name <span className="text-orange-600">*</span>
                       </FormLabel>
 
                       <FormControl>
@@ -199,8 +211,7 @@ const Create = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          Subject{" "}
-                          <span className="text-orange-600">*</span>
+                          Subject <span className="text-orange-600">*</span>
                         </FormLabel>
 
                         <Select
@@ -239,8 +250,7 @@ const Create = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          Teacher{" "}
-                          <span className="text-orange-600">*</span>
+                          Teacher <span className="text-orange-600">*</span>
                         </FormLabel>
 
                         <Select
@@ -291,9 +301,7 @@ const Create = () => {
                             onChange={(e) => {
                               const value = e.target.value;
 
-                              field.onChange(
-                                value ? Number(value) : undefined
-                              );
+                              field.onChange(value ? Number(value) : undefined);
                             }}
                             onBlur={field.onBlur}
                             name={field.name}
@@ -313,8 +321,7 @@ const Create = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          Status{" "}
-                          <span className="text-orange-600">*</span>
+                          Status <span className="text-orange-600">*</span>
                         </FormLabel>
 
                         <Select
@@ -328,13 +335,9 @@ const Create = () => {
                           </FormControl>
 
                           <SelectContent>
-                            <SelectItem value="active">
-                              Active
-                            </SelectItem>
+                            <SelectItem value="active">Active</SelectItem>
 
-                            <SelectItem value="inactive">
-                              Inactive
-                            </SelectItem>
+                            <SelectItem value="inactive">Inactive</SelectItem>
                           </SelectContent>
                         </Select>
 
