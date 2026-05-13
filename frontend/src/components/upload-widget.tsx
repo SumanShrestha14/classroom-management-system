@@ -55,15 +55,19 @@ const UploadWidget: React.FC<UploadWidgetProps> = ({
     let retryCount = 0;
     const MAX_RETRIES = 20; // 10 seconds total
     const intervalId = window.setInterval(() => {
+      if (initializeWidget()) {
+        window.clearInterval(intervalId);
+        return;
+      }
+
       retryCount++;
       if (retryCount >= MAX_RETRIES) {
         window.clearInterval(intervalId);
         console.error(
           "Failed to initialize Cloudinary widget: script did not load",
         );
-        return;
       }
-    },500);
+    }, 500);
     return () => window.clearInterval(intervalId);
   }, []);
   const openWidget = () => {
