@@ -8,8 +8,6 @@ const app = express();
 if(!process.env.FRONTEND_URL){
     throw new Error("FRONTEND_URL is not defined in environment variables");
 }
-app.use(express.json());
-app.use(securityMiddleware)
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "http://localhost:5173",
@@ -17,6 +15,8 @@ app.use(
     credentials: true,
   }),
 );
+app.use(express.json());
+app.use(securityMiddleware)
 app.use("/api/subjects", SubjectRouter);
 app.get("/", (req, res) => {
   res.send("Hello, World!");

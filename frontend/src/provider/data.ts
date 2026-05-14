@@ -1,45 +1,66 @@
 import { BACKEND_BASE_URL } from "@/constants";
 import { ListResponse } from "@/types";
+import { HttpError } from "@refinedev/core";
 import { createDataProvider, CreateDataProviderOptions } from "@refinedev/rest";
 
-if(!BACKEND_BASE_URL){
-    throw new Error("BACKEND_BASE_URL is not defined");
+if (!BACKEND_BASE_URL) {
+  throw new Error("BACKEND_BASE_URL is not defined");
 }
 
-const options:CreateDataProviderOptions ={
-    getList:{
-        getEndpoint : ({resource }) => resource,
-        buildQueryParams : async ({pagination , resource ,filters}) =>{
-            const page = pagination?.currentPage ?? 1;
-            const pageSize = pagination?.pageSize ?? 10;
-            const params : Record<string , string|number> = {page,limit:pageSize};
-            filters?.forEach((filter) => {
-                const field = 'field' in filter ? filter.field : '';
-                const value = String(filter.value);
-                if(resource === 'subjects'){
-                    if(field === 'department'){
-                        params.department = value;
-                    }
-                    if(field === 'name' || field ==='code'){
-                        params.search = value;
-                    }
-                }
-            })
-            return params;
-        },
-        mapResponse : async (response) =>{
-            const payload : ListResponse= await response.clone().json();
-            return payload.data ?? [];
-        },
-
-        getTotalCount : async (response) => {
-            const payload : ListResponse= await response.clone().json();
-            return payload.pagination?.total ?? payload.data?.length ?? 0;
-        }
+const buildHTTPError = async (response: Response): Promise<HttpError> => {
+  let message = "Request Failed";
+  try {
+    const payload = (await response.json()) as { message?: string };
+    if (payload?.message) {
+      message = payload.message;
     }
+  } catch (error) {
+    console.error("Request Failed");
+  }
 
-}
+  return {
+    message,
+    statusCode: response.status,
+  };
+};
 
-const {dataProvider} = createDataProvider(BACKEND_BASE_URL, options); 
+const options: CreateDataProviderOptions = {
+  getList: {
+    getEndpoint: ({ resource }) => resource,
+    buildQueryParams: async ({ pagination, resource, filters }) => {
+      const page = pagination?.currentPage ?? 1;
+      const pageSize = pagination?.pageSize ?? 10;
+      const params: Record<string, string | number> = { page, limit: pageSize };
+      filters?.forEach((filter) => {
+        const field = "field" in filter ? filter.field : "";
+        const value = String(filter.value);
+        if (resource === "subjects") {
+          if (field === "department") {
+            params.department = value;
+          }
+          if (field === "name" || field === "code") {
+            params.search = value;
+          }
+        }
+      });
+      return params;
+    },
+    mapResponse: async (response) => {
+      if (!response.ok) {
+        throw await buildHTTPError(response);
+      }
+      const payload: ListResponse = await response.clone().json();
+      return payload.data ?? [];
+    },
+
+    getTotalCount: async (response) => {
+      throw await buildHTTPError(response);
+      const payload: ListResponse = await response.clone().json();
+      return payload.pagination?.total ?? payload.data?.length ?? 0;
+    },
+  },
+};
+
+const { dataProvider } = createDataProvider(BACKEND_BASE_URL, options);
 
 export default dataProvider;

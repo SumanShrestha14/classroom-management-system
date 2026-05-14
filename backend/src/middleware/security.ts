@@ -52,14 +52,18 @@ const securityMiddleware = async (
 
     const decision = await client.protect(arcjetRequest);
 
-    if(decision.isDenied() && decision.reason.isBot()){
-        res.status(403).json({error:'Forbidden', message: "Request blocked by bot protection"});
-    }
-    if(decision.isDenied() && decision.reason.isShield()){
-        res.status(403).json({error:'Forbidden', message: "Request blocked by shield protection"});
-    }
-    if(decision.isDenied() && decision.reason.isRateLimit()){
-        res.status(403).json({error:'Forbidden', message: "Request blocked by rate limit protection"});
+    if (decision.isDenied()) {
+      if (decision.reason.isBot()) {
+        return res.status(403).json({ error: "Forbidden", message: "Request blocked by bot protection" });
+      }
+
+      if (decision.reason.isShield()) {
+        return res.status(403).json({ error: "Forbidden", message: "Request blocked by shield protection" });
+      }
+
+      if (decision.reason.isRateLimit()) {
+        return res.status(429).json({ error: "Too many requests", message: "Request blocked by rate limit protection" });
+      }
     }
 
     next();
