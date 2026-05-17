@@ -1,7 +1,3 @@
-declare global {
-    namespace Express{
-        interface Request{
-            user? :{
 import type { UserRoles } from "./type";
 
 declare global {
@@ -13,9 +9,5 @@ declare global {
         }
     }
 }
-            }
-        }
-    }
-}
-
+            
 export {}

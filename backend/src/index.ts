@@ -2,6 +2,8 @@ import express from "express";
 import SubjectRouter from "./routes/subject";
 import cors from "cors";
 import securityMiddleware from "./middleware/security";
+import {toNodeHandler} from "better-auth/node"
+import { auth } from "./lib/auth";
 
 const app = express();
 
@@ -15,8 +17,11 @@ app.use(
     credentials: true,
   }),
 );
+
 app.use(express.json());
 app.use(securityMiddleware)
+app.all('/api/auth/{*splat}', toNodeHandler(auth));
+
 app.use("/api/subjects", SubjectRouter);
 app.get("/", (req, res) => {
   res.send("Hello, World!");
