@@ -18,10 +18,10 @@ app.use(
   }),
 );
 
-app.all('/api/auth/{*splat}', toNodeHandler(auth));
-
 app.use(express.json());
 app.use(securityMiddleware)
+app.all('/api/auth/{*splat}', toNodeHandler(auth));
+
 app.use("/api/subjects", SubjectRouter);
 app.get("/", (req, res) => {
   res.send("Hello, World!");
